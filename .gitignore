@@ -1,0 +1,23 @@
+# --- Seguridad y Configuración ---
+.streamlit/secrets.toml
+.vscode/
+
+# --- Persistencia de Datos (Archivos Locales) ---
+# Ignoramos estos para que no se suban datos de consultas previas a GitHub
+historic.jsonl
+pendientes.jsonl
+ejemplito.jsonl
+example.json
+prueba.csv
+
+# --- Archivos de Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+env/
+
+# --- Archivos de Sistema ---
+.DS_Store
+Thumbs.db
