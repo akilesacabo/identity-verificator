@@ -112,7 +112,7 @@ with tab1:
                     raw_ids = txt_input.split('\n')
                     if modo == "Comparar con mi lista":
                         st.warning("⚠️ El modo manual no soporta comparación automática. Usa un CSV para comparar nombres.")
-            # --------------------------------------
+
     with col2:
         if st.button("Iniciar Procesamiento"):
             ids_limpios = list(dict.fromkeys([normalizar_cedula(c) for c in raw_ids if normalizar_cedula(c)]))
