@@ -4,6 +4,8 @@ import time
 import os 
 from fuzzywuzzy import fuzz
 import toml
+import unicodedata
+import re
 
 
 
@@ -178,27 +180,47 @@ def manage_api_requests(non_cached_ids, tokens, cache_dict):
     return results
 
 
+def normalizar_sustituir(texto):
+    """Limpia tildes, caracteres especiales y convierte a lista de palabras."""
+    if not texto: return []
+    # 1. Quitar tildes y normalizar a base (p.ej. á -> a, ñ -> n)
+    texto = unicodedata.normalize('NFD', texto)
+    texto = "".join([c for c in texto if unicodedata.category(c) != 'Mn'])
+    # 2. Mayúsculas y quitar caracteres no alfanuméricos (puntos, comas, guiones)
+    texto = re.sub(r'[^A-Z0-9\s]', '', texto.upper())
+    # 3. Retornar set de palabras (vectorizar) omitiendo conectores cortos como 'DE', 'LA', 'Y'
+    palabras = [p for p in texto.split() if len(p) > 2 or p in ["DE", "LA"]]
+    return set(palabras)
+
 def comparar_nombres(nombre_usuario, nombre_api):
-    """
-    Compara dos strings y devuelve el nivel de similitud.
-    """
-    if not nombre_api:
+    if not nombre_api or nombre_api == "NO ENCONTRADO":
         return "NO ENCONTRADO", 0
         
-    # Limpieza básica para mejorar la comparación
-    n1 = nombre_usuario.strip().upper()
-    n2 = nombre_api.strip().upper()
+    # Vectorizamos ambos
+    tokens_usuario = normalizar_sustituir(nombre_usuario)
+    tokens_api = normalizar_sustituir(nombre_api)
     
-    # token_sort_ratio ignora el orden de las palabras (ej. "Perez Juan" vs "Juan Perez")
-    score = fuzz.token_sort_ratio(n1, n2)
+    if not tokens_usuario:
+        return "ERROR INPUT", 0
+
+    # Buscamos cuántas palabras de MI LISTA están en la API
+    encontrados = [p for p in tokens_usuario if p in tokens_api]
     
-    if score >= 90:
-        return "IGUAL", score
-    elif score >= 65:
-        return "REVISAR", score
+    # Calculamos el porcentaje de contención
+    porcentaje = len(encontrados) / len(tokens_usuario)
+    
+    # --- CRITERIOS SOLIDOS ---
+    if porcentaje == 1.0:
+        # Si TODAS mis palabras están en la API (Caso Juan Pereira en Juan Pablo Jose Pereira Garcia)
+        return "IGUAL", 100
+    
+    elif porcentaje >= 0.5:
+        # Si falta alguna palabra (ej. escribiste mal un apellido o falta uno importante)
+        return "REVISAR", int(porcentaje * 100)
+        
     else:
-        return "DIFERENTE", score
-    
+        # Si la mayoría de palabras no coinciden
+        return "DIFERENTE", int(porcentaje * 100)
 
 def inicializar_sistema(historial_path="historic.jsonl"):
     """

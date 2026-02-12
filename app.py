@@ -96,7 +96,7 @@ with tab1:
             if metodo_entrada == "Sube un CSV":
                 uploaded_file = st.file_uploader("Sube tu archivo", type=["csv"])
                 if uploaded_file:
-                    df = pd.read_csv(uploaded_file, sep=None, engine='python')
+                    df = pd.read_csv(uploaded_file, sep=None, engine='python',encoding = "latin-1")
                     st.success(f"Cargadas {len(df)} filas.")
                     
                     col_id = st.selectbox("Columna de Cédula", df.columns)
