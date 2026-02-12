@@ -84,35 +84,35 @@ tab1, tab2 = st.tabs(["🚀 Procesar Lista", "📁 Histórico"])
 with tab1:
     col1, col2 = st.columns([1, 2])
     
-with col1:
-        modo = st.radio("Modo de trabajo:", ["Solo Consultar", "Comparar con mi lista"])
-        
-        # --- NUEVA SECCIÓN DE ENTRADA MIXTA ---
-        metodo_entrada = st.radio("Método de entrada:", ["Sube un CSV", "Pega las Cédulas"])
-        
-        raw_ids = []
-        nombres_ref = {}
+    with col1:
+            modo = st.radio("Modo de trabajo:", ["Solo Consultar", "Comparar con mi lista"])
+            
+            # --- NUEVA SECCIÓN DE ENTRADA MIXTA ---
+            metodo_entrada = st.radio("Método de entrada:", ["Sube un CSV", "Pega las Cédulas"])
+            
+            raw_ids = []
+            nombres_ref = {}
 
-        if metodo_entrada == "Sube un CSV":
-            uploaded_file = st.file_uploader("Sube tu archivo", type=["csv"])
-            if uploaded_file:
-                df = pd.read_csv(uploaded_file, sep=None, engine='python')
-                st.success(f"Cargadas {len(df)} filas.")
-                
-                col_id = st.selectbox("Columna de Cédula", df.columns)
-                raw_ids = df[col_id].dropna().astype(str).tolist()
-                
-                if modo == "Comparar con mi lista":
-                    col_nom = st.selectbox("Columna de Nombre Completo", df.columns)
-                    nombres_ref = dict(zip([normalizar_cedula(c) for c in raw_ids], df[col_nom].astype(str)))
-        
-        else:
-            txt_input = st.text_area("Pega las cédulas (una por línea):", height=200, placeholder="12345678\n87654321")
-            if txt_input:
-                raw_ids = txt_input.split('\n')
-                if modo == "Comparar con mi lista":
-                    st.warning("⚠️ El modo manual no soporta comparación automática. Usa un CSV para comparar nombres.")
-        # --------------------------------------
+            if metodo_entrada == "Sube un CSV":
+                uploaded_file = st.file_uploader("Sube tu archivo", type=["csv"])
+                if uploaded_file:
+                    df = pd.read_csv(uploaded_file, sep=None, engine='python')
+                    st.success(f"Cargadas {len(df)} filas.")
+                    
+                    col_id = st.selectbox("Columna de Cédula", df.columns)
+                    raw_ids = df[col_id].dropna().astype(str).tolist()
+                    
+                    if modo == "Comparar con mi lista":
+                        col_nom = st.selectbox("Columna de Nombre Completo", df.columns)
+                        nombres_ref = dict(zip([normalizar_cedula(c) for c in raw_ids], df[col_nom].astype(str)))
+            
+            else:
+                txt_input = st.text_area("Pega las cédulas (una por línea):", height=200, placeholder="12345678\n87654321")
+                if txt_input:
+                    raw_ids = txt_input.split('\n')
+                    if modo == "Comparar con mi lista":
+                        st.warning("⚠️ El modo manual no soporta comparación automática. Usa un CSV para comparar nombres.")
+            # --------------------------------------
     with col2:
         if st.button("Iniciar Procesamiento"):
             ids_limpios = list(dict.fromkeys([normalizar_cedula(c) for c in raw_ids if normalizar_cedula(c)]))
