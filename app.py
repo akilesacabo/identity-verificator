@@ -175,7 +175,7 @@ with tab2:
         st.dataframe(df_hist, use_container_width=True, height=400)
         
         # Opción para exportar TODO el histórico acumulado
-        csv_hist = df_hist.to_csv(index=False).encode('utf-8')
+        csv_hist = df_hist.to_csv(index=False).encode('latin-1')
         st.download_button(
             label="📥 Exportar Base de Datos Completa",
             data=csv_hist,
