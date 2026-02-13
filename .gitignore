@@ -9,6 +9,7 @@ pendientes.jsonl
 ejemplito.jsonl
 example.json
 prueba.csv
+*.csv
 
 # --- Archivos de Python ---
 __pycache__/
